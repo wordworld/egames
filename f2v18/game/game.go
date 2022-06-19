@@ -1,36 +1,27 @@
 package game
 
 import (
+	"f2v18/board"
+	"f2v18/conf"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	"image/color"
-	"image/png"
-	"log"
-	"os"
+)
+
+const (
+	CONFIG_FILE = "game.conf.json"
 )
 
 type Game struct {
-	img *ebiten.Image
+	canvas *board.Canvas
 }
 
 func NewGame() (g *Game) {
+	cfg, _ := conf.GetInstance().Load(CONFIG_FILE)
 	g = new(Game)
-	file := "algorithm.png"
-	reader, err := os.Open(file)
-	defer reader.Close()
-	if err != nil {
-		log.Fatalf("read file failed:%v", err)
-	}
-	img, err := png.Decode(reader)
-	if err != nil {
-		log.Fatalf("image decode failed:%v", err)
-	}
-	// ebitenutil.NewImageFromFile 对一些图片格式不支持
-	// 用 image.Image 创建 ebiten.Image 比较保险
-	g.img = ebiten.NewImageFromImage(img)
-	if g.img == nil {
-		log.Fatalf("new image failed")
-	}
+	ebiten.SetWindowTitle(cfg.GameName)
+	ebiten.SetWindowSize(cfg.WinWidth, cfg.WinHeight)
+	g.canvas = board.NewCanvas(board.WithSize(ebiten.WindowSize()),
+		board.WithGrid(6, 6),
+		board.WidthUpdateAll())
 	return
 }
 
@@ -39,21 +30,13 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	w, h := screen.Size()
-	screen.Fill(color.RGBA{128, 0, 0, 255})
-	ebitenutil.DebugPrintAt(screen, "Hello, World!", w/2, 0)
-
-	opt := &ebiten.DrawImageOptions{}
-	sx, sy := 0.5, 0.5
-	opt.GeoM.Scale(sx, sy)
-
-	iw, ih := g.img.Size()
-	dx := float64(iw) * sx / 2
-	dy := float64(ih) * sy / 2
-	opt.GeoM.Translate(float64(w)/2-dx, float64(h)/2-dy)
-	screen.DrawImage(g.img, opt)
+	screen.DrawImage(g.canvas.UpdateImage())
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	return 600, 300
+	return g.canvas.Size()
+}
+
+func (g *Game) Quit() {
+	conf.GetInstance().Save(CONFIG_FILE)
 }
