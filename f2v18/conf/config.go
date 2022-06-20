@@ -13,6 +13,7 @@ type Config struct {
 	WinHeight   int            // 窗口高度
 	WidthLine   int            // 棋格线粗
 	WidthFrame  int            // 棋盘外围格线粗
+	RadiusPiece int            // 棋子半径
 	ColorBoard  *color.RGBA    // 棋盘背景
 	ColorLine   *color.RGBA    // 棋格线
 	ColorPieces [2]*color.RGBA // 棋子
@@ -38,6 +39,7 @@ func newConfig() *Config {
 		ColorPieces: [2]*color.RGBA{&color.RGBA{255, 255, 255, 255}, &color.RGBA{255, 76, 0, 255}},
 		WidthFrame:  6,
 		WidthLine:   4,
+		RadiusPiece: 10,
 	}
 	return c
 }
