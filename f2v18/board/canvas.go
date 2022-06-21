@@ -13,6 +13,7 @@ type Canvas struct {
 	*ebiten.Image
 	*ebiten.DrawImageOptions
 	Piece [2]*ebiten.Image
+	Location
 }
 
 func NewCanvas(options ...Operator) *Canvas {
@@ -63,25 +64,20 @@ func (v *Canvas) UpdateImage() (e *ebiten.Image, o *ebiten.DrawImageOptions) {
 func (v *Canvas) DrawBoard() {
 	cfg := conf.GetInstance()
 	v.Fill(cfg.ColorBoard)
-	colWidth := (v.Width-2*cfg.WidthFrame-(v.Cols-2)*cfg.WidthLine)/v.Cols + 1
-	rowHeight := (v.Height-2*cfg.WidthFrame-(v.Rows-2)*cfg.WidthLine)/v.Rows + 1
-	// 棋盘
-	width, height := v.Width-colWidth, v.Height-rowHeight
-	left, top := colWidth/2, rowHeight/2
-	// outter-lines
-	right, bottom := v.Width-left-cfg.WidthFrame, v.Height-top-cfg.WidthFrame
-	v.DrawRect(left, top, width, cfg.WidthFrame, cfg.ColorLine)
-	v.DrawRect(left, bottom, width, cfg.WidthFrame, cfg.ColorLine)
-	v.DrawRect(left, top, cfg.WidthFrame, height, cfg.ColorLine)
-	v.DrawRect(right, top, cfg.WidthFrame, height, cfg.ColorLine)
 	// inner-horizon-lines
-	for y := top + cfg.WidthFrame + rowHeight; y < bottom; y += cfg.WidthLine + rowHeight {
-		v.DrawRect(left, y, width, cfg.WidthLine, cfg.ColorLine)
+	v.DrawRect(v.GetLeft(), v.GetTop(), v.GetWidth(), cfg.WidthFrame, cfg.ColorLine)
+	for row := 1; row < v.Rows-1; row++ {
+		x, y := v.Coord(row, 0)
+		v.DrawRect(x, y, v.GetWidth(), cfg.WidthLine, cfg.ColorLine)
 	}
+	v.DrawRect(v.GetLeft(), v.GetBottom(), v.GetWidth()+cfg.WidthFrame, cfg.WidthFrame, cfg.ColorLine)
 	// inner-vertical-lines
-	for x := left + cfg.WidthFrame + colWidth; x < right; x += cfg.WidthLine + colWidth {
-		v.DrawRect(x, top, cfg.WidthLine, height, cfg.ColorLine)
+	v.DrawRect(v.GetLeft(), v.GetTop(), cfg.WidthFrame, v.GetHeight(), cfg.ColorLine)
+	for col := 1; col < v.Cols-1; col++ {
+		x, y := v.Coord(0, col)
+		v.DrawRect(x, y, cfg.WidthLine, v.GetHeight(), cfg.ColorLine)
 	}
+	v.DrawRect(v.GetRight(), v.GetTop(), cfg.WidthFrame, v.GetHeight(), cfg.ColorLine)
 }
 
 func (v *Canvas) DrawRect(left, top, width, height int, color color.Color) {
@@ -89,8 +85,18 @@ func (v *Canvas) DrawRect(left, top, width, height int, color color.Color) {
 }
 
 func (v *Canvas) DrawPieces() {
-	v.DrawPiece(0, 20, 50)
-	v.DrawPiece(1, 100, 50)
+	r := conf.GetInstance().RadiusPiece
+	for row := 0; row < 3; row++ {
+		for col := 0; col < v.Cols; col++ {
+			x, y := v.Coord(row, col)
+
+			v.DrawPiece(0, x-r, y-r)
+		}
+	}
+	x2, y2 := v.Coord(v.Rows-1, v.Cols/2-1)
+	x1, y1 := v.Coord(v.Rows-1, v.Cols/2)
+	v.DrawPiece(1, x1-r, y1-r)
+	v.DrawPiece(1, x2-r, y2-r)
 }
 
 func (v *Canvas) DrawPiece(i, x, y int) {

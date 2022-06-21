@@ -19,9 +19,11 @@ func NewGame() (g *Game) {
 	g = new(Game)
 	ebiten.SetWindowTitle(cfg.GameName)
 	ebiten.SetWindowSize(cfg.WinWidth, cfg.WinHeight)
+	rows, cols := 6, 6
 	g.canvas = board.NewCanvas(board.WithSize(ebiten.WindowSize()),
-		board.WithGrid(6, 6),
+		board.WithGrid(rows, cols),
 		board.WidthUpdateAll())
+	g.canvas.Location = NewGridBoard(g.canvas.Option)
 	return
 }
 
