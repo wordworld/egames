@@ -37,9 +37,10 @@ func NewPiece(color *color.RGBA) *ebiten.Image {
 	r := conf.GetInstance().RadiusPiece
 	opt := &ebiten.DrawRectShaderOptions{}
 	opt.Uniforms = map[string]interface{}{
-		"Radius": float32(r - 1),
-		"Center": []float32{float32(r), float32(r)},
-		"Color":  []float32{float32(color.R) / 255, float32(color.G) / 255, float32(color.B) / 255, float32(color.A) / 255},
+		"Radius":    float32(r - 1),
+		"Center":    []float32{float32(r), float32(r)},
+		"Antialias": conf.GetInstance().Antialias,
+		"Color":     []float32{float32(color.R) / 255, float32(color.G) / 255, float32(color.B) / 255, float32(color.A) / 255},
 	}
 	w, h := 2*r, 2*r
 	piece := ebiten.NewImage(w, h)

@@ -14,6 +14,7 @@ type Config struct {
 	WidthLine   int            // 棋格线粗
 	WidthFrame  int            // 棋盘外围格线粗
 	RadiusPiece int            // 棋子半径
+	Antialias   float32        // 抗锯齿
 	ColorBoard  *color.RGBA    // 棋盘背景
 	ColorLine   *color.RGBA    // 棋格线
 	ColorPieces [2]*color.RGBA // 棋子
@@ -40,6 +41,7 @@ func newConfig() *Config {
 		WidthFrame:  6,
 		WidthLine:   4,
 		RadiusPiece: 10,
+		Antialias:   3,
 	}
 	return c
 }
