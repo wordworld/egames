@@ -36,3 +36,7 @@ c ── d ── e ── f ── g ── h
 
 * 若蓝方棋子全被淘汰，则红方胜
 * 若红方棋子无处可走，则蓝方胜
+
+## 参考
+
+[Cocos Creator Shader Effect 系列 - 6 - 内发光特效](https://www.jianshu.com/p/326b73f86ecc)
