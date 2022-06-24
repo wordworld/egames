@@ -44,7 +44,7 @@ func NewPiece(color *color.RGBA) *ebiten.Image {
 		"Color":       util.Color2Vec(color),
 		"ShadowColor": util.Color2Vec(util.InvColor(color)),
 		"ShadowDist":  float32(r) * 3.2,
-		"HighLight":   float32(r) / 16,
+		"HighLight":   float32(2),
 	}
 	w, h := 2*r, 2*r
 	piece := ebiten.NewImage(w, h)
@@ -53,59 +53,77 @@ func NewPiece(color *color.RGBA) *ebiten.Image {
 }
 
 // 更新游戏对象
-func (v *Canvas) UpdateImage() (e *ebiten.Image, o *ebiten.DrawImageOptions) {
-	e = v.Image
-	o = v.DrawImageOptions
-	if !v.UpdateAll {
+func (cvs *Canvas) UpdateImage() (e *ebiten.Image, o *ebiten.DrawImageOptions) {
+	e = cvs.Image
+	o = cvs.DrawImageOptions
+	if !cvs.UpdateAll {
 		return
 	}
 	// 全量重绘
-	defer v.Disposable()
-	v.DrawBoard()
-	v.DrawPieces()
+	defer cvs.Disposable()
+	cvs.DrawBoard()
+	cvs.DrawPieces()
 	return
 }
 
-func (v *Canvas) DrawBoard() {
+func (cvs *Canvas) DrawBoard() {
 	cfg := conf.GetInstance()
-	v.Fill(cfg.ColorBoard)
-	// inner-horizon-lines
-	v.DrawRect(v.GetLeft(), v.GetTop(), v.GetWidth(), cfg.WidthFrame, cfg.ColorLine)
-	for row := 1; row < v.Rows-1; row++ {
-		x, y := v.Coord(row, 0)
-		v.DrawRect(x, y, v.GetWidth(), cfg.WidthLine, cfg.ColorLine)
+	cvs.Fill(cfg.ColorBoard)
+	// horizon-lines
+	for row := 0; row < cvs.Rows; row++ {
+		x, y, u, v := cvs.Quad(row, 0).QUAD()
+		cvs.DrawRect(x-u/2, y-v/2, cvs.GetWidth(), v, cfg.ColorLine)
 	}
-	v.DrawRect(v.GetLeft(), v.GetBottom(), v.GetWidth()+cfg.WidthFrame, cfg.WidthFrame, cfg.ColorLine)
-	// inner-vertical-lines
-	v.DrawRect(v.GetLeft(), v.GetTop(), cfg.WidthFrame, v.GetHeight(), cfg.ColorLine)
-	for col := 1; col < v.Cols-1; col++ {
-		x, y := v.Coord(0, col)
-		v.DrawRect(x, y, cfg.WidthLine, v.GetHeight(), cfg.ColorLine)
+	// vertical-lines
+	for col := 0; col < cvs.Cols; col++ {
+		x, y, u, v := cvs.Quad(0, col).QUAD()
+		cvs.DrawRect(x-u/2, y-v/2, u, cvs.GetHeight(), cfg.ColorLine)
 	}
-	v.DrawRect(v.GetRight(), v.GetTop(), cfg.WidthFrame, v.GetHeight(), cfg.ColorLine)
 }
 
-func (v *Canvas) DrawRect(left, top, width, height int, color color.Color) {
-	ebitenutil.DrawRect(v.Image, float64(left), float64(top), float64(width), float64(height), color)
+func (cvs *Canvas) DrawRect(left, top, width, height int, color color.Color) {
+	ebitenutil.DrawRect(cvs.Image, float64(left), float64(top), float64(width), float64(height), color)
 }
 
-func (v *Canvas) DrawPieces() {
+func (cvs *Canvas) DrawPieces() {
+	// 2
 	r := conf.GetInstance().RadiusPiece
+	for _, col := range []int{(cvs.Cols - 1) / 2, cvs.Cols / 2} {
+		x, y := cvs.Coord(cvs.Rows-1, col)
+		cvs.DrawPiece(1, x-r, y-r)
+	}
+	// 18
 	for row := 0; row < 3; row++ {
-		for col := 0; col < v.Cols; col++ {
-			x, y := v.Coord(row, col)
-
-			v.DrawPiece(0, x-r, y-r)
+		for col := 0; col < cvs.Cols; col++ {
+			x, y := cvs.Coord(row, col)
+			cvs.DrawPiece(0, x-r, y-r)
 		}
 	}
-	x2, y2 := v.Coord(v.Rows-1, v.Cols/2-1)
-	x1, y1 := v.Coord(v.Rows-1, v.Cols/2)
-	v.DrawPiece(1, x1-r, y1-r)
-	v.DrawPiece(1, x2-r, y2-r)
 }
 
-func (v *Canvas) DrawPiece(i, x, y int) {
+func (cvs *Canvas) DrawPiece(i, x, y int) {
 	opt := &ebiten.DrawImageOptions{}
 	opt.GeoM.Translate(float64(x), float64(y))
-	v.DrawImage(v.Piece[i], opt)
+	cvs.DrawImage(cvs.Piece[i], opt)
+}
+
+func (cvs *Canvas) ErasePiece(row, col int) {
+	x, y, u, v := cvs.Quad(row, col).QUAD()
+	cfg := conf.GetInstance()
+	r := cfg.RadiusPiece
+	cvs.DrawRect(x-r, y-r, 2*r, 2*r, cfg.ColorBoard)
+	// 竖线
+	if 0 != row {
+		cvs.DrawRect(x-u/2, y-r, u, r, cfg.ColorLine) // up
+	}
+	if row != cvs.Rows-1 {
+		cvs.DrawRect(x-u/2, y, u, r, cfg.ColorLine) // down
+	}
+	// 横线
+	if 0 != col {
+		cvs.DrawRect(x-u/2-r, y-v/2, r+u, v, cfg.ColorLine) // left
+	}
+	if col != cvs.Cols-1 {
+		cvs.DrawRect(x-u/2, y-v/2, r+u, v, cfg.ColorLine) // right
+	}
 }
