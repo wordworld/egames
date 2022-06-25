@@ -1,4 +1,4 @@
-package game
+package view
 
 import (
 	"f2v18/board"

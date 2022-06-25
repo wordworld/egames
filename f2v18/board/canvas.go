@@ -11,22 +11,24 @@ import (
 
 type Canvas struct {
 	*Option
-	*ebiten.Image
-	*ebiten.DrawImageOptions
-	Piece [2]*ebiten.Image
+	*Photo
+	Piece [2]*Photo
 	Location
 }
 
 func NewCanvas(options ...Operator) *Canvas {
-	v := &Canvas{}
-	v.Option = new(Option)
-	v.Option.Apply(options...)
-	v.Image = ebiten.NewImage(v.Width, v.Height)
-	v.DrawImageOptions = &ebiten.DrawImageOptions{}
-	for i, c := range conf.GetInstance().ColorPieces {
-		v.Piece[i] = NewPiece(c)
+	opt := new(Option)
+	opt.Apply(options...)
+	cvs := &Canvas{
+		Option:   opt,
+		Photo:    NewPhoto(opt.Width, opt.Height),
+		Piece:    [2]*Photo{},
+		Location: nil,
 	}
-	return v
+	for i, c := range conf.GetInstance().ColorPieces {
+		cvs.Piece[i] = TakePhoto(NewPiece(c))
+	}
+	return cvs
 }
 
 func NewPiece(color *color.RGBA) *ebiten.Image {
@@ -62,7 +64,6 @@ func (cvs *Canvas) UpdateImage() (e *ebiten.Image, o *ebiten.DrawImageOptions) {
 	// 全量重绘
 	defer cvs.Disposable()
 	cvs.DrawBoard()
-	cvs.DrawPieces()
 	return
 }
 
@@ -85,29 +86,19 @@ func (cvs *Canvas) DrawRect(left, top, width, height int, color color.Color) {
 	ebitenutil.DrawRect(cvs.Image, float64(left), float64(top), float64(width), float64(height), color)
 }
 
-func (cvs *Canvas) DrawPieces() {
-	// 2
+func (cvs *Canvas) DrawPiece(x, y int, side int) {
+	cvs.Piece[side].Take().Put(x, y).Print(cvs.Image)
+}
+
+// 落子
+func (cvs *Canvas) PutPiece(row, col int, side int) {
+	x, y := cvs.Coord(row, col)
 	r := conf.GetInstance().RadiusPiece
-	for _, col := range []int{(cvs.Cols - 1) / 2, cvs.Cols / 2} {
-		x, y := cvs.Coord(cvs.Rows-1, col)
-		cvs.DrawPiece(1, x-r, y-r)
-	}
-	// 18
-	for row := 0; row < 3; row++ {
-		for col := 0; col < cvs.Cols; col++ {
-			x, y := cvs.Coord(row, col)
-			cvs.DrawPiece(0, x-r, y-r)
-		}
-	}
+	cvs.DrawPiece(x-r, y-r, side)
 }
 
-func (cvs *Canvas) DrawPiece(i, x, y int) {
-	opt := &ebiten.DrawImageOptions{}
-	opt.GeoM.Translate(float64(x), float64(y))
-	cvs.DrawImage(cvs.Piece[i], opt)
-}
-
-func (cvs *Canvas) ErasePiece(row, col int) {
+// 取子
+func (cvs *Canvas) TakePiece(row, col int) {
 	x, y, u, v := cvs.Quad(row, col).QUAD()
 	cfg := conf.GetInstance()
 	r := cfg.RadiusPiece
