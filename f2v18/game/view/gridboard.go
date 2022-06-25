@@ -4,6 +4,7 @@ import (
 	"f2v18/board"
 	"f2v18/conf"
 	"f2v18/template/gen/tint"
+	"math"
 )
 
 type GridBoard struct {
@@ -17,11 +18,30 @@ type GridBoard struct {
 	Top       int
 }
 
-func NewGridBoard(scrn *board.Option) *GridBoard {
+func NewGridBoard(scrn *board.Option) board.Location {
 	b := &GridBoard{
 		Rows: scrn.Rows,
 		Cols: scrn.Cols,
 	}
+	cfg := conf.GetInstance()
+	b.FitScreen(scrn)
+	// 调整线宽
+	if b.ColWidth < 2*cfg.RadiusPiece || b.RowHeight < 2*cfg.RadiusPiece {
+		cfg.WidthFrame = 2
+		cfg.WidthLine = 1
+		b.FitScreen(scrn)
+	}
+	// 调整棋子半径
+	fitR := int(math.Min(float64(b.ColWidth), float64(b.RowHeight)) * 0.5)
+	if cfg.RadiusPiece > fitR {
+		cfg.RadiusPiece = fitR
+		if cfg.RadiusPiece < 1 {
+			cfg.RadiusPiece = 1
+		}
+	}
+	return b
+}
+func (b *GridBoard) FitScreen(scrn *board.Option) {
 	cfg := conf.GetInstance()
 	// 整个 screen 由 Rows 行 Cols 列，均匀划分成规则网格
 	// ColWidth 是相邻两条竖线间空白区的宽度，屏幕左右各有 ColWidth/2 空白
@@ -34,7 +54,6 @@ func NewGridBoard(scrn *board.Option) *GridBoard {
 	b.Height = cfg.WidthFrame*2 + cfg.WidthLine*(b.Rows-2) + b.RowHeight*(b.Rows-1)
 	// 左上角
 	b.Left, b.Top = (scrn.Width-b.Width)/2, (scrn.Height-b.Height)/2
-	return b
 }
 
 func (b *GridBoard) Coord(row, col int) (int, int) {

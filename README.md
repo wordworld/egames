@@ -39,4 +39,10 @@ c ── d ── e ── f ── g ── h
 
 ## 参考
 
+[Ebiten Tour](https://ebiten.org/tour/) & [Examples](https://ebiten.org/examples/)
+
+[Ebiten (v2) API](https://pkg.go.dev/github.com/hajimehoshi/ebiten/v2)
+
 [Cocos Creator Shader Effect 系列 - 6 - 内发光特效](https://www.jianshu.com/p/326b73f86ecc)
+
+[RGB 颜色参考](https://tool.oschina.net/commons?type=3)

@@ -9,12 +9,14 @@ import (
 
 type Config struct {
 	GameName    string         // 游戏名
-	WinWidth    int            // 窗口宽度
-	WinHeight   int            // 窗口高度
+	MarginHor   int            // 窗口水平边距
+	MarginVer   int            // 窗口竖直边距
 	WidthLine   int            // 棋格线粗
 	WidthFrame  int            // 棋盘外围格线粗
 	RadiusPiece int            // 棋子半径
 	Antialias   float32        // 抗锯齿
+	LnHorizon   int            // 棋盘水平线数量
+	LnVertical  int            // 棋盘竖直线数量
 	ColorBoard  *color.RGBA    // 棋盘背景
 	ColorLine   *color.RGBA    // 棋格线
 	ColorPieces [2]*color.RGBA // 棋子
@@ -33,8 +35,8 @@ var once sync.Once
 func newConfig() *Config {
 	c := &Config{
 		GameName:    "2v18",
-		WinWidth:    800,
-		WinHeight:   600,
+		MarginHor:   100,
+		MarginVer:   100,
 		ColorBoard:  &color.RGBA{230, 179, 61, 255},
 		ColorLine:   &color.RGBA{0, 0, 0, 255},
 		ColorPieces: [2]*color.RGBA{&color.RGBA{255, 255, 255, 255}, &color.RGBA{255, 76, 0, 255}},
@@ -42,6 +44,8 @@ func newConfig() *Config {
 		WidthLine:   4,
 		RadiusPiece: 10,
 		Antialias:   3,
+		LnHorizon:   6,
+		LnVertical:  6,
 	}
 	return c
 }
@@ -49,7 +53,7 @@ func newConfig() *Config {
 func (c *Config) Save(filepath string) error {
 	var data []byte
 	var err error
-	if data, err = json.MarshalIndent(c, "", "  "); err == nil {
+	if data, err = json.MarshalIndent(c, "", "    "); err == nil {
 		return os.WriteFile(filepath, data, 0666)
 	}
 	return err

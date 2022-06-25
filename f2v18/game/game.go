@@ -17,14 +17,14 @@ type Game struct {
 
 func NewGame() (g *Game) {
 	cfg, _ := conf.GetInstance().Load(CONFIG_FILE)
-	g = &Game{ViewManager: &view.ViewManager{}}
+	scrnWidth, scrnHeight := ebiten.ScreenSizeInFullscreen()
+	ebiten.SetWindowSize(scrnWidth-cfg.MarginHor, scrnHeight-cfg.MarginVer)
 	ebiten.SetWindowTitle(cfg.GameName)
-	ebiten.SetWindowSize(cfg.WinWidth, cfg.WinHeight)
-	rows, cols := 6, 6
-	g.ViewManager.Canvas = board.NewCanvas(board.WithSize(ebiten.WindowSize()),
-		board.WithGrid(rows, cols),
+	g = &Game{ViewManager: &view.ViewManager{}}
+	g.Canvas = board.NewCanvas(board.WithSize(ebiten.WindowSize()),
+		board.WithGrid(cfg.LnHorizon, cfg.LnVertical),
+		board.WithLocation(view.NewGridBoard),
 		board.WidthUpdateAll())
-	g.ViewManager.Canvas.Location = view.NewGridBoard(g.ViewManager.Canvas.Option)
 	return
 }
 

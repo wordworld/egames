@@ -15,6 +15,7 @@ type Option struct {
 	// grids
 	Rows int
 	Cols int
+	Location
 }
 
 type Operator func(opt *Option)
@@ -51,6 +52,12 @@ func WithGrid(rols, cols int) Operator {
 	return func(opt *Option) {
 		opt.Rows = rols
 		opt.Cols = cols
+	}
+}
+
+func WithLocation(locater func(*Option) Location) Operator {
+	return func(opt *Option) {
+		opt.Location = locater(opt)
 	}
 }
 

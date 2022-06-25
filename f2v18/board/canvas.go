@@ -12,21 +12,19 @@ import (
 type Canvas struct {
 	*Option
 	*Photo
-	Piece [2]*Photo
-	Location
+	Piece []*Photo
 }
 
 func NewCanvas(options ...Operator) *Canvas {
 	opt := new(Option)
 	opt.Apply(options...)
 	cvs := &Canvas{
-		Option:   opt,
-		Photo:    NewPhoto(opt.Width, opt.Height),
-		Piece:    [2]*Photo{},
-		Location: nil,
+		Option: opt,
+		Photo:  NewPhoto(opt.Width, opt.Height),
+		Piece:  make([]*Photo, 0),
 	}
-	for i, c := range conf.GetInstance().ColorPieces {
-		cvs.Piece[i] = TakePhoto(NewPiece(c))
+	for _, c := range conf.GetInstance().ColorPieces {
+		cvs.Piece = append(cvs.Piece, TakePhoto(NewPiece(c)))
 	}
 	return cvs
 }
