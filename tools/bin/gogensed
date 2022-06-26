@@ -1,48 +1,42 @@
 #!/bin/bash
-if [ $# -lt 3 ];then
-  echo 'gogensed inputFile outputDir T=int K=float ...'
-  exit 1
+if [ $# -lt 2 ]; then
+    echo 'gogensed outputDir T=int K=float ...'
+    exit 1
 fi
-inputFile=$1
-outputDir=$2
+inputFile=$GOFILE
+outputDir=$1
 pkgname=${outputDir##*/}
 output=$outputDir/${inputFile##*/}
-typeList=${@:3}
+typeList=${@:2}
 
-function ShowInput(){
-  echo "template:" ${inputFile%/*}  ${inputFile##*/}
-  echo "specific:" $outputDir
-  echo "package:"  $pkgname
-  echo "output:"   $output
-  for type in ${typeList[@]}; do
-    echo ${type%=*} : ${type##*=}
-  done
+function ShowInput() {
+    echo "template:" ${inputFile%/*} ${inputFile##*/}
+    echo "specific:" $outputDir
+    echo "package:" $pkgname
+    echo "output:" $output
+    for type in ${typeList[@]}; do
+        echo ${type%=*} : ${type##*=}
+    done
 }
 
 function CommentHead() {
-  local file=$1
-  echo '/*' > $file
-  echo ' * CODE GENERATED AUTOMATICALLY WITH gogensed' >> $file
-  echo ' * THIS FILE SHOULD NOT BE EDITED BY HAND' >> $file
-  echo ' */' >> $file
+    local file=$1
+    echo '/*' >$file
+    echo ' * CODE GENERATED AUTOMATICALLY WITH gogensed' >>$file
+    echo ' * THIS FILE SHOULD NOT BE EDITED BY HAND' >>$file
+    echo ' */' >>$file
 }
 
 function SedTypeList() {
-  input=$inputFile
-  for type in ${typeList[@]}; do
-    local A=${type%=*}
-    local B=${type##*=}
-    if [ "$input" == "" ]; then
-      sed -i "" 's/'$A'/'$B'/g' $output
-    else
-      grep -Ev 'type.*'$A $input | sed -e 's/'$A'/'$B'/g' >> $output
-      input=""
-    fi
-  done
-  sed -i "" 's/package.*/package '$pkgname'/g' $output
+    local out=$1
+    sed -e '/.*gogensed.*$/d' $inputFile |
+        sed -e 's/package.*/package '$pkgname'/' >>$out
+    for type in ${typeList[@]}; do
+        sed -i "" 's/'${type%=*}'/'${type##*=}'/g' $out
+    done
 }
 
 #ShowInput
 mkdir -p $outputDir
 CommentHead $output
-SedTypeList
+SedTypeList $output

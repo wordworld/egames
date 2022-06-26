@@ -16,12 +16,16 @@ type GridBoard struct {
 	ColWidth  int
 	Left      int
 	Top       int
+	CY        []int // 横线中心 y 值
+	CX        []int // 竖线中心 x 值
 }
 
 func NewGridBoard(scrn *board.Option) board.Location {
 	b := &GridBoard{
 		Rows: scrn.Rows,
 		Cols: scrn.Cols,
+		CY:   make([]int, scrn.Rows),
+		CX:   make([]int, scrn.Cols),
 	}
 	cfg := conf.GetInstance()
 	b.FitScreen(scrn)
@@ -54,11 +58,47 @@ func (b *GridBoard) FitScreen(scrn *board.Option) {
 	b.Height = cfg.WidthFrame*2 + cfg.WidthLine*(b.Rows-2) + b.RowHeight*(b.Rows-1)
 	// 左上角
 	b.Left, b.Top = (scrn.Width-b.Width)/2, (scrn.Height-b.Height)/2
+	// 横线中心
+	b.CY[0] = b.Top + cfg.WidthFrame/2
+	b.CY[b.Rows-1] = b.GetBottom() - cfg.WidthFrame/2
+	for i := 1; i < b.Rows-1; i++ {
+		b.CY[i] = b.Top + cfg.WidthFrame + i*(b.RowHeight+cfg.WidthLine) - cfg.WidthLine/2
+	}
+	// 竖线中心
+	b.CX[0] = b.Left + cfg.WidthFrame/2
+	b.CX[b.Cols-1] = b.GetRight() - cfg.WidthFrame/2
+	for j := 1; j < b.Cols-1; j++ {
+		b.CX[j] = b.Left + cfg.WidthFrame + j*(b.ColWidth+cfg.WidthLine) - cfg.WidthLine/2
+	}
 }
 
-func (b *GridBoard) Coord(row, col int) (int, int) {
-	q := b.Quad(row, col)
-	return *q.X, *q.Y
+// x -> col  &&  y -> row
+func (b *GridBoard) LocateCoord(x, y int) (row int, col int) {
+	row, col = tint.LowerBound(b.CY, y), tint.LowerBound(b.CX, x)
+	xc, _ := b.GetCoord(0, col)
+	if x+b.ColWidth/2 < xc {
+		col -= 1
+	}
+	_, yc := b.GetCoord(row, 0)
+	if y+b.RowHeight/2 < yc {
+		row -= 1
+	}
+	return
+}
+
+func (b *GridBoard) LocateIndex(index int) (int, int) {
+	return index / b.Cols, index % b.Rows
+}
+
+func (b *GridBoard) GetCoord(row, col int) (int, int) {
+	if row < 0 || b.Rows <= row || col < 0 || b.Cols <= col {
+		return 0, 0
+	}
+	return b.CX[col], b.CY[row]
+}
+
+func (b *GridBoard) GetIndex(row, col int) int {
+	return row*b.Cols + col
 }
 
 // 用行、列定位坐标：第row行、第col列相交矩形中心(x,y) 及相交矩形的宽u、高v
@@ -116,5 +156,5 @@ func (b *GridBoard) GetTop() int {
 }
 
 func (b *GridBoard) GetBottom() int {
-	return b.Left + b.Height
+	return b.Top + b.Height
 }

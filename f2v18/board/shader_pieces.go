@@ -1,6 +1,9 @@
 //go:build ignore
 // +build ignore
 
+//go:generate mkdir -p shader
+//go:generate file2byteslice -input $GOFILE -output shader/pieces.go -package shader -var Pieces
+
 package main
 
 // Uniform variables.

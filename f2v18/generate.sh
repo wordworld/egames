@@ -1,2 +1,3 @@
 #!/bin/bash
-go generate main.go
+go generate board/shader_*.go
+go generate template/*.go

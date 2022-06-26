@@ -36,7 +36,8 @@ func (p *Photo) Print(screen *ebiten.Image) {
 // 放到某个位置
 func (p *Photo) Put(x, y int) *Photo {
 	p.GeoM.Reset()
-	return p.Mov(x, y)
+	w, h := p.Image.Size()
+	return p.Mov(x-w/2, y-h/2)
 }
 
 // 挪动一个向量 [dx, dy]

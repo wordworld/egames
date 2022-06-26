@@ -1,6 +1,7 @@
-package template
+//go:build gogensed
 
-type TYPE interface{}
+//go:generate gogensed gen/tint TYPE=int
+package template
 
 type Quad struct {
 	D    [4]TYPE

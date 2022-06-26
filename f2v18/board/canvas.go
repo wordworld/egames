@@ -1,6 +1,7 @@
 package board
 
 import (
+	"f2v18/board/shader"
 	"f2v18/conf"
 	"f2v18/util"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -30,7 +31,7 @@ func NewCanvas(options ...Operator) *Canvas {
 }
 
 func NewPiece(color *color.RGBA) *ebiten.Image {
-	shader, err := ebiten.NewShader(shader_pieces)
+	shader, err := ebiten.NewShader(shader.Pieces)
 	if err != nil {
 		log.Fatalf("piece shader create err:%v\n", err)
 		return nil
@@ -50,19 +51,6 @@ func NewPiece(color *color.RGBA) *ebiten.Image {
 	piece := ebiten.NewImage(w, h)
 	piece.DrawRectShader(w, h, shader, opt)
 	return piece
-}
-
-// 更新游戏对象
-func (cvs *Canvas) UpdateImage() (e *ebiten.Image, o *ebiten.DrawImageOptions) {
-	e = cvs.Image
-	o = cvs.DrawImageOptions
-	if !cvs.UpdateAll {
-		return
-	}
-	// 全量重绘
-	defer cvs.Disposable()
-	cvs.DrawBoard()
-	return
 }
 
 func (cvs *Canvas) DrawBoard() {
@@ -90,9 +78,8 @@ func (cvs *Canvas) DrawPiece(x, y int, side int) {
 
 // 落子
 func (cvs *Canvas) PutPiece(row, col int, side int) {
-	x, y := cvs.Coord(row, col)
-	r := conf.GetInstance().RadiusPiece
-	cvs.DrawPiece(x-r, y-r, side)
+	x, y := cvs.GetCoord(row, col)
+	cvs.DrawPiece(x, y, side)
 }
 
 // 取子

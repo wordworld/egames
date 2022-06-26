@@ -3,6 +3,7 @@ package view
 const (
 	LIGHT_SIDE = 0 // 白子
 	DARK_SIDE  = 1 // 黑子
+	SEL_SIDE   = 2 // 选中的棋子
 )
 
 func (cvs *ViewManager) DrawPieces() {
@@ -16,8 +17,4 @@ func (cvs *ViewManager) DrawPieces() {
 			cvs.PutPiece(row, col, LIGHT_SIDE)
 		}
 	}
-	cvs.TakePiece(2, 2)
-	cvs.PutPiece(3, 2, LIGHT_SIDE)
-	cvs.TakePiece(5, 3)
-	cvs.PutPiece(4, 3, DARK_SIDE)
 }

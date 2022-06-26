@@ -8,18 +8,18 @@ import (
 )
 
 type Config struct {
-	GameName    string         // 游戏名
-	MarginHor   int            // 窗口水平边距
-	MarginVer   int            // 窗口竖直边距
-	WidthLine   int            // 棋格线粗
-	WidthFrame  int            // 棋盘外围格线粗
-	RadiusPiece int            // 棋子半径
-	Antialias   float32        // 抗锯齿
-	LnHorizon   int            // 棋盘水平线数量
-	LnVertical  int            // 棋盘竖直线数量
-	ColorBoard  *color.RGBA    // 棋盘背景
-	ColorLine   *color.RGBA    // 棋格线
-	ColorPieces [2]*color.RGBA // 棋子
+	GameName    string        // 游戏名
+	MarginHor   int           // 窗口水平边距
+	MarginVer   int           // 窗口竖直边距
+	WidthLine   int           // 棋格线粗
+	WidthFrame  int           // 棋盘外围格线粗
+	RadiusPiece int           // 棋子半径
+	Antialias   float32       // 抗锯齿
+	LnHorizon   int           // 棋盘水平线数量
+	LnVertical  int           // 棋盘竖直线数量
+	ColorBoard  *color.RGBA   // 棋盘背景
+	ColorLine   *color.RGBA   // 棋格线
+	ColorPieces []*color.RGBA // 棋子
 }
 
 func GetInstance() *Config {
@@ -39,7 +39,7 @@ func newConfig() *Config {
 		MarginVer:   100,
 		ColorBoard:  &color.RGBA{230, 179, 61, 255},
 		ColorLine:   &color.RGBA{0, 0, 0, 255},
-		ColorPieces: [2]*color.RGBA{&color.RGBA{255, 255, 255, 255}, &color.RGBA{255, 76, 0, 255}},
+		ColorPieces: make([]*color.RGBA, 0),
 		WidthFrame:  6,
 		WidthLine:   4,
 		RadiusPiece: 10,
@@ -47,6 +47,8 @@ func newConfig() *Config {
 		LnHorizon:   6,
 		LnVertical:  6,
 	}
+	c.ColorPieces = append(c.ColorPieces, &color.RGBA{255, 255, 255, 255})
+	c.ColorPieces = append(c.ColorPieces, &color.RGBA{255, 76, 0, 255})
 	return c
 }
 
