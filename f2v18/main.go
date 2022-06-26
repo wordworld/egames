@@ -1,3 +1,5 @@
+//go:build mouse_keboard
+
 package main
 
 import (

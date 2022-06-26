@@ -39,10 +39,23 @@ c ── d ── e ── f ── g ── h
 
 ## 参考
 
-[Ebiten Tour](https://ebiten.org/tour/) & [Examples](https://ebiten.org/examples/)
+[Ebiten Tour](https://ebiten.org/tour/)
+| [Documents](https://ebiten.org/documents/)
+| [API](https://pkg.go.dev/github.com/hajimehoshi/ebiten/v2)
+| [Examples](https://ebiten.org/examples/)
+| [go-inovation](https://github.com/hajimehoshi/go-inovation)
 
-[Ebiten (v2) API](https://pkg.go.dev/github.com/hajimehoshi/ebiten/v2)
+[Android Studio 安装、配置 NDK](https://developer.android.google.cn/studio/projects/install-ndk?hl=zh-cn)
+| [AndroidDevTools](https://www.androiddevtools.cn/)
 
 [Cocos Creator Shader Effect 系列 - 6 - 内发光特效](https://www.jianshu.com/p/326b73f86ecc)
 
 [RGB 颜色参考](https://tool.oschina.net/commons?type=3)
+
+## Errors
+
+[gomobile: no usable NDK in $ANDROID_HOME](https://githubwyb.github.io/blogs/2022-05-24-gomobile/)
+
+[Gradle sync 报错 Plugin was not found](https://blog.csdn.net/qq_41624557/article/details/123848212)
+
+[Build was configured to prefer settings repositories over project repositories](https://blog.csdn.net/hpp_1225/article/details/119888981)
