@@ -29,10 +29,11 @@ function CommentHead() {
 
 function SedTypeList() {
     local out=$1
+    printf "%-10s %s\n" "$typeList" " $inputFile -> $out"
     sed -e '/.*gogensed.*$/d' $inputFile |
         sed -e 's/package.*/package '$pkgname'/' >>$out
     for type in ${typeList[@]}; do
-        sed -i "" 's/'${type%=*}'/'${type##*=}'/g' $out
+        sed -i 's/'${type%=*}'/'${type##*=}'/g' $out
     done
 }
 
